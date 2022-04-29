@@ -358,3 +358,6 @@ nav #date {
 	font-size: 1.6em;
 	margin-bottom: 14px;
 }
+.time {
+	white-space: pre !important;
+}

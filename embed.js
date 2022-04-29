@@ -1,13 +1,12 @@
 const AGENDA_DAYS = 20;
-const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-let ampm = (h) => (h < 12 || h === 24) ? "am" : "pm";
+const DAYS_OF_WEEK = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
 const url = new URL(window.location.href);
 const loading = document.getElementById('loading');
 
 const ical = url.searchParams.get('ical');
-let show_title = url.searchParams.get('title') || 1;
+let show_title = url.searchParams.get('title') || 0;
 const show_nav = url.searchParams.get('nav') || 1;
 const show_date = url.searchParams.get('date') || 1;
 const show_details = url.searchParams.get('details') || 0;
@@ -23,6 +22,19 @@ let today = new Date();
 today.setHours(0,0,0,0);
 let selectedDay = new Date(today.valueOf());
 let selectedView = default_view;
+
+
+//See https://stackoverflow.com/a/1500501
+function urlify(text) {
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  if (text == null)
+    return text;
+
+  return text.replace(urlRegex, function(url) {
+    return '<a href="' + url + '" target="_blank">' + url + '</a>';
+  })
+}
 
 function getHumanDate(date) {
 	return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,0)}-${date.getDate().toString().padStart(2,0)}`;
@@ -89,37 +101,37 @@ function setView(newView, events) {
 }
 
 function eventDetails(event) {
-	let startTime = `${(event.startDate.getHours() % 12) || 12}:${event.startDate.getMinutes() < 10 ? '0' : ''}${event.startDate.getMinutes()}`;
-	let endTime = `${(event.endDate.getHours() % 12) || 12}:${event.endDate.getMinutes() < 10 ? '0' : ''}${event.endDate.getMinutes()}`;
-	let startM = ampm(event.startDate.getHours());
-	let endM = ampm(event.endDate.getHours());
+	let startTime = `${event.startDate.getHours() || 0}:${event.startDate.getMinutes() < 10 ? '0' : ''}${event.startDate.getMinutes()}`;
+	let endTime = `${event.endDate.getHours() || 0}:${event.endDate.getMinutes() < 10 ? '0' : ''}${event.endDate.getMinutes()}`;
+	let startM = event.startDate.getHours();
+	let endM = event.endDate.getHours();
 
 	let eDetails = document.createElement('div');
 	eDetails.className = 'details';
 
 	let whenLabel = document.createElement('strong');
-	whenLabel.appendChild(document.createTextNode('When: '));
+	whenLabel.appendChild(document.createTextNode('Uhrzeit: '));
 	let when = document.createElement('span');
 	when.className = 'when';
-	let whenText = `${DAYS_OF_WEEK[event.startDate.getDay()].substring(0,3)}, ${MONTHS[event.startDate.getMonth()]} ${event.startDate.getDate()}, ${startTime}${startM} - ${endTime}${endM}`;
+	let whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]}, ${startTime} - ${endTime} Uhr`;
 	if (event.days == 1 && event.allDay) {
-		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${MONTHS[event.startDate.getMonth()].substring(0,3)} ${event.startDate.getDate()}, ${event.startDate.getFullYear()}`;
+		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${MONTHS[event.startDate.getMonth()]} ${event.startDate.getDate()}, ${event.startDate.getFullYear()}`;
 	} else if (event.days % 1 == 0 && event.allDay) {
 		let newEnd = new Date(event.endDate.valueOf());
 		newEnd.setDate(newEnd.getDate()-1);
-		whenText = `${MONTHS[event.startDate.getMonth()].substring(0,3)} ${event.startDate.getDate()} - ${MONTHS[newEnd.getMonth()].substring(0,3)} ${newEnd.getDate()}, ${event.startDate.getFullYear()}`;
+		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]} - ${DAYS_OF_WEEK[event.endDate.getDay()]}, ${event.endDate.getDate()}. ${MONTHS[event.endDate.getMonth()]} ${event.startDate.getFullYear()}`;
 	} else if (event.days > 1) {
-		whenText = `${MONTHS[event.startDate.getMonth()]} ${event.startDate.getDate()}, ${startTime}${startM} - ${MONTHS[event.endDate.getMonth()]} ${event.endDate.getDate()}, ${endTime}${endM}`;
+		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]}, ${startTime} Uhr - ${DAYS_OF_WEEK[event.endDate.getDay()]}, ${event.endDate.getDate()}. ${MONTHS[event.endDate.getMonth()]}, ${endTime} Uhr  ${event.startDate.getFullYear()}`; 
 	}
 
 	when.appendChild(document.createTextNode(whenText));
 	eDetails.appendChild(whenLabel);
 	eDetails.appendChild(when);
 
-	if (event.location != '') {
+	if (event.location != null && event.location != '') {
 		eDetails.appendChild(document.createElement('br'));
 		let whereLabel = document.createElement('strong');
-		whereLabel.appendChild(document.createTextNode('Where: '));
+		whereLabel.appendChild(document.createTextNode('Ort: '));
 		let where = document.createElement('span');
 		where.className = 'where';
 		let whereText = document.createTextNode(event.location);
@@ -137,10 +149,10 @@ function eventDetails(event) {
 	if (event.description != '') {
 		eDetails.appendChild(document.createElement('br'));
 		let descLabel = document.createElement('strong');
-		descLabel.appendChild(document.createTextNode('Description: '));
+		descLabel.appendChild(document.createTextNode('Details: '));
 		let desc = document.createElement('span');
 		desc.className = 'description';
-		desc.innerHTML = event.description;
+		desc.innerHTML = urlify(event.description);
 		eDetails.appendChild(descLabel);
 		eDetails.appendChild(desc);
 	}
@@ -165,7 +177,7 @@ function renderAgenda(events) {
 	indicator.className = 'indicator';
 	let nowDate = new Date();
 	let now = `${(nowDate.getHours() % 12) || 12}:${nowDate.getMinutes() < 10 ? '0' : ''}${nowDate.getMinutes()}`;
-	let nowM = ampm(nowDate.getHours());
+	let nowM = nowDate.getHours();
 	indicator.title = `${now} ${nowM}`;
 	let indicatorset = false;
 	let todayHasEvents = false;
@@ -181,7 +193,7 @@ function renderAgenda(events) {
 			));
 			column = document.createElement('td');
 			column.className = 'emptyday';
-			column.appendChild(document.createTextNode('No events today'));
+			column.appendChild(document.createTextNode('Keine Events heute'));
 			row.appendChild(column);
 			days.push(row);
 		}
@@ -232,23 +244,37 @@ function renderAgenda(events) {
 		eName.appendChild(document.createTextNode(events[i].name));
 		summary.appendChild(eName);
 
-		let startTime = `${(events[i].startDate.getHours() % 12) || 12}:${events[i].startDate.getMinutes() < 10 ? '0' : ''}${events[i].startDate.getMinutes()}`;
-		let endTime = `${(events[i].endDate.getHours() % 12) || 12}:${events[i].endDate.getMinutes() < 10 ? '0' : ''}${events[i].endDate.getMinutes()}`;
-		let startM = ampm(events[i].startDate.getHours());
-		let endM = ampm(events[i].endDate.getHours());
+		let startTime = `${events[i].startDate.getHours() || 0}:${events[i].startDate.getMinutes() < 10 ? '0' : ''}${events[i].startDate.getMinutes()}`;
+	        let endTime = `${events[i].endDate.getHours() || 0}:${events[i].endDate.getMinutes() < 10 ? '0' : ''}${events[i].endDate.getMinutes()}`;
+	//	let startTime = `${(events[i].startDate.getHours() % 12) || 12}:${events[i].startDate.getMinutes() < 10 ? '0' : ''}${events[i].startDate.getMinutes()}`;
+	//	let endTime = `${(events[i].endDate.getHours() % 12) || 12}:${events[i].endDate.getMinutes() < 10 ? '0' : ''}${events[i].endDate.getMinutes()}`;
+	//	let startM = events[i].startDate.getHours();
+	//	let endM = events[i].endDate.getHours();
+		let startM = "";
+		let endM = "";
 
 		if (!events[i].allDay) {
 			let eTime = document.createElement('span');
 			eTime.className = 'time';
-			let timeText = `${startTime} ${startM == endM ? '' : startM} - ${endTime} ${endM}`;
+			let timeText = `${startTime} ${startM == endM ? '' : startM} - ${endTime} ${endM}` + " Uhr";
 			if (events[i].days === 0) {
 				timeText = `${startTime} ${startM}`;
 			} else if (events[i].days > 1 && !events[i].allDay) {
-				timeText = `${MONTHS[events[i].startDate.getMonth()]} ${events[i].startDate.getDate()}, ${startTime}${startM} - ${MONTHS[events[i].endDate.getMonth()]} ${events[i].endDate.getDate()}, ${endTime}${endM}`;
+				timeText = `${DAYS_OF_WEEK[events[i].startDate.getDay()]}, ${events[i].startDate.getDate()}. ${MONTHS[events[i].startDate.getMonth()]} - \n${DAYS_OF_WEEK[events[i].endDate.getDay()]}, ${events[i].endDate.getDate()}. ${MONTHS[events[i].endDate.getMonth()]}`;
+			} else if (events[i].days > 1 && !events[i].allDay) {
+				timeText = `${DAYS_OF_WEEK[events[i].startDate.getDay()]}, ${events[i].startDate.getDate()}. ${MONTHS[events[i].startDate.getMonth()]} - \n${DAYS_OF_WEEK[events[i].endDate.getDay()]}, ${events[i].endDate.getDate()}. ${MONTHS[events[i].endDate.getMonth()]}`;
 			}
 			eTime.appendChild(document.createTextNode(timeText));
-			summary.appendChild(eTime);
+	                summary.appendChild(eTime);
+
+		} else if (events[i].days > 1 && events[i].allDay){
+			let eTime = document.createElement('span');
+                        eTime.className = 'time';
+			timeText = `${DAYS_OF_WEEK[events[i].startDate.getDay()]}, ${events[i].startDate.getDate()}. ${MONTHS[events[i].startDate.getMonth()]} - \n${DAYS_OF_WEEK[events[i].endDate.getDay()]}, ${events[i].endDate.getDate()}. ${MONTHS[events[i].endDate.getMonth()]}`;
+			eTime.appendChild(document.createTextNode(timeText));
+	                summary.appendChild(eTime);
 		}
+		
 		event.appendChild(summary);
 
 		event.appendChild(eventDetails(events[i]));
@@ -453,6 +479,8 @@ function renderCalendar(meta, events) {
 	setView(selectedView, events);
 
 	loading.style.display = 'none';
+	var overallHeight = document.getElementById("agenda").offsetHeight + document.getElementById("top").offsetHeight;
+        parent.iFrameFinished(overallHeight);
 }
 
 function parseCalendar(data) {
@@ -475,7 +503,7 @@ function parseCalendar(data) {
 		events.push({
 			uid: event.uid,
 			name: event.summary,
-			location: event.location,
+			location: event.location || "TBA",
 			description: event.description,
 			startDate: event.startDate.toJSDate(),
 			endDate: event.endDate.toJSDate(),
@@ -524,3 +552,13 @@ if (ical) {
 } else {
 	loading.innerHTML = "Error: no iCal URL provided";
 }
+// Calculate the height of the calendar and let the superframe do the magic
+// e.g.
+// iFrame = document.getElementById("calendarIframe");
+// function iFrameFinished(pixel){
+// iFrame.height = pixel + "px";
+//}
+document.body.addEventListener("click", function(){
+	var overallHeight = document.getElementById("agenda").offsetHeight + document.getElementById("top").offsetHeight;
+	parent.iFrameFinished(overallHeight);
+});
