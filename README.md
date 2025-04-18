@@ -10,3 +10,6 @@ https://gra0007.github.io/modern-cal-embed/
 
 You can test the embed's functionality using the following ics file url:
 `https://gra0007.github.io/modern-cal-embed/example.ics`
+
+! IMPORTANT
+Use `header('Access-Control-Allow-Origin: *');` on the PHP side!
