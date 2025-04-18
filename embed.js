@@ -19,7 +19,7 @@ const colorText = url.searchParams.get('colortxt') || '#000000';
 const colorThemeText = url.searchParams.get('colorsecondarytxt') || '#FFFFFF';
 
 let today = new Date();
-today.setHours(0,0,0,0);
+today.setHours(0, 0, 0, 0);
 let selectedDay = new Date(today.valueOf());
 let selectedView = default_view;
 
@@ -37,7 +37,7 @@ function urlify(text) {
 }
 
 function getHumanDate(date) {
-	return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,0)}-${date.getDate().toString().padStart(2,0)}`;
+	return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, 0)}-${date.getDate().toString().padStart(2, 0)}`;
 }
 
 function createDateCell(date, todayd = false) {
@@ -55,7 +55,7 @@ function createDateCell(date, todayd = false) {
 	}
 	let dayEl = document.createElement('span');
 	dayEl.className = 'dayname';
-	dayEl.appendChild(document.createTextNode(DAYS_OF_WEEK[day].substring(0,3).toUpperCase()));
+	dayEl.appendChild(document.createTextNode(DAYS_OF_WEEK[day].substring(0, 3).toUpperCase()));
 	dateCell.appendChild(dayEl);
 	let dateEl = document.createElement('span');
 	dateEl.className = 'day';
@@ -65,7 +65,7 @@ function createDateCell(date, todayd = false) {
 	dateCell.appendChild(dateEl);
 	let monthEl = document.createElement('span');
 	monthEl.className = 'month';
-	monthEl.appendChild(document.createTextNode(MONTHS[month].substring(0,3).toUpperCase()));
+	monthEl.appendChild(document.createTextNode(MONTHS[month].substring(0, 3).toUpperCase()));
 	dateCell.appendChild(monthEl);
 	return dateCell;
 }
@@ -113,6 +113,7 @@ function eventDetails(event) {
 	whenLabel.appendChild(document.createTextNode('Uhrzeit: '));
 	let when = document.createElement('span');
 	when.className = 'when';
+<<<<<<< HEAD
 	let whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]}, ${startTime} - ${endTime} Uhr`;
 	if (event.days == 1 && event.allDay) {
 		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${MONTHS[event.startDate.getMonth()]} ${event.startDate.getDate()}, ${event.startDate.getFullYear()}`;
@@ -120,6 +121,15 @@ function eventDetails(event) {
 		let newEnd = new Date(event.endDate.valueOf());
 		newEnd.setDate(newEnd.getDate()-1);
 		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]} - ${DAYS_OF_WEEK[event.endDate.getDay()]}, ${event.endDate.getDate()}. ${MONTHS[event.endDate.getMonth()]} ${event.startDate.getFullYear()}`;
+=======
+	let whenText = `${DAYS_OF_WEEK[event.startDate.getDay()].substring(0, 3)}, ${MONTHS[event.startDate.getMonth()]} ${event.startDate.getDate()}, ${startTime}${startM} - ${endTime}${endM}`;
+	if (event.days == 1 && event.allDay) {
+		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${MONTHS[event.startDate.getMonth()].substring(0, 3)} ${event.startDate.getDate()}, ${event.startDate.getFullYear()}`;
+	} else if (event.days % 1 == 0 && event.allDay) {
+		let newEnd = new Date(event.endDate.valueOf());
+		newEnd.setDate(newEnd.getDate() - 1);
+		whenText = `${MONTHS[event.startDate.getMonth()].substring(0, 3)} ${event.startDate.getDate()} - ${MONTHS[newEnd.getMonth()].substring(0, 3)} ${newEnd.getDate()}, ${event.startDate.getFullYear()}`;
+>>>>>>> a97e1c3 (reworked fetch section)
 	} else if (event.days > 1) {
 		whenText = `${DAYS_OF_WEEK[event.startDate.getDay()]}, ${event.startDate.getDate()}. ${MONTHS[event.startDate.getMonth()]}, ${startTime} Uhr - ${DAYS_OF_WEEK[event.endDate.getDay()]}, ${event.endDate.getDate()}. ${MONTHS[event.endDate.getMonth()]}, ${endTime} Uhr  ${event.startDate.getFullYear()}`; 
 	}
@@ -164,7 +174,7 @@ function renderAgenda(events) {
 	// Filter after today
 	events = events.filter((e) => {
 		let end = new Date(e.endDate.valueOf());
-		end.setHours(0,0,0,0);
+		end.setHours(0, 0, 0, 0);
 		return end >= today;
 	});
 
@@ -204,7 +214,7 @@ function renderAgenda(events) {
 			row = document.createElement('tr');
 
 			let curDay = new Date(events[i].startDate.valueOf());
-			curDay.setHours(0,0,0,0);
+			curDay.setHours(0, 0, 0, 0);
 			if (curDay.getTime() == today.getTime()) {
 				todayHasEvents = true;
 			}
@@ -218,7 +228,7 @@ function renderAgenda(events) {
 
 		// Indicator
 		let eventDay = new Date(events[i].endDate.valueOf());
-		eventDay.setHours(0,0,0,0);
+		eventDay.setHours(0, 0, 0, 0);
 		if (nowDate < events[i].endDate && !indicatorset && today.getTime() == eventDay.getTime()) {
 			column.appendChild(indicator);
 			indicatorset = true;
@@ -287,7 +297,7 @@ function renderAgenda(events) {
 			column.appendChild(indicator);
 		}
 
-		if (i+1 == events.length || events[i].startDate.toDateString() != events[i+1].startDate.toDateString()) {
+		if (i + 1 == events.length || events[i].startDate.toDateString() != events[i + 1].startDate.toDateString()) {
 			row.appendChild(column);
 			days.push(row);
 		}
@@ -332,7 +342,7 @@ function renderMonth(events, fromDay = new Date(today.valueOf())) {
 		monthEndDate.setDate(monthEndDate.getDate() + 1);
 	}
 	let days = (monthEndDate - monthStartDate) / (24 * 60 * 60 * 1000) + 1;
-	let weeks = days/7;
+	let weeks = days / 7;
 
 	let rows = [];
 
@@ -342,7 +352,7 @@ function renderMonth(events, fromDay = new Date(today.valueOf())) {
 	for (let i = 0; i < 7; i++) {
 		let label = document.createElement('td');
 		let n = i + parseInt(monday_start);
-		label.appendChild(document.createTextNode(DAYS_OF_WEEK[(n == 7 ? 0 : n)].substring(0,3)));
+		label.appendChild(document.createTextNode(DAYS_OF_WEEK[(n == 7 ? 0 : n)].substring(0, 3)));
 		labelRow.appendChild(label);
 	}
 	rows.push(labelRow);
@@ -385,12 +395,12 @@ function renderMonth(events, fromDay = new Date(today.valueOf())) {
 						showMonthDetails(dayEvents[e]);
 					}
 				};
-				event.onclick = () => {showMonthDetails(dayEvents[e])};
+				event.onclick = () => { showMonthDetails(dayEvents[e]) };
 				dayCell.appendChild(event);
 			}
 			weekRow.appendChild(dayCell);
 
-			day.setDate(day.getDate()+1);
+			day.setDate(day.getDate() + 1);
 		}
 		rows.push(weekRow);
 	}
@@ -401,7 +411,7 @@ function renderMonth(events, fromDay = new Date(today.valueOf())) {
 		topHeight = topEl.clientHeight;
 	}
 	let monthEl = document.getElementById('month');
-	monthEl.style.height = `calc(100vh - ${topHeight+8}px)`;
+	monthEl.style.height = `calc(100vh - ${topHeight + 8}px)`;
 	monthEl.innerHTML = '';
 	monthEl.classList.remove('hidden');
 	for (let i = 0; i < rows.length; i++) {
@@ -411,7 +421,7 @@ function renderMonth(events, fromDay = new Date(today.valueOf())) {
 
 function renderCalendar(meta, events) {
 	// Sort events
-	events.sort((a,b) =>  a.startDate - b.startDate);
+	events.sort((a, b) => a.startDate - b.startDate);
 
 	// Title
 	if (show_title == 1) {
@@ -510,7 +520,7 @@ function parseCalendar(data) {
 			startDate: event.startDate.toJSDate(),
 			endDate: event.endDate.toJSDate(),
 			allDay: event.startDate.isDate,
-			days: (duration.toSeconds()/86400)
+			days: (duration.toSeconds() / 86400)
 		});
 		if (event.isRecurring()) {
 			let expand = new ICAL.RecurExpansion({
@@ -532,7 +542,7 @@ function parseCalendar(data) {
 						startDate: next.toJSDate(),
 						endDate: endDate.toJSDate(),
 						allDay: event.startDate.isDate,
-						days: (duration.toSeconds()/86400)
+						days: (duration.toSeconds() / 86400)
 					});
 				}
 				j++;
@@ -543,13 +553,26 @@ function parseCalendar(data) {
 }
 
 if (ical) {
-	fetch(ical).then((response) => {
-		response.text().then((text) => {
-			parseCalendar(text);
+	icals = ical.split("|");
+
+
+	async function fetchAllLinks(urls) {
+		try {
+			const responses = await Promise.all(urls.map(url => fetch(url)));
+			const data = await Promise.all(responses.map(res => res.text()));
+			return data;
+		} catch (error) {
+			console.error(e);
+			loading.innerHTML = "Error: iCal URL doesn't exist or isn't valid<br><br>iCal links (like those from Google calendar) will need to use a cors proxy";
+			return [];
+		}
+	}
+
+	fetchAllLinks(icals).then(data => {
+		data.forEach(cal => {
+			parseCalendar(cal);
 		});
-	}).catch((e) => {
-		console.error(e);
-		loading.innerHTML = "Error: iCal URL doesn't exist or isn't valid<br><br>iCal links (like those from Google calendar) will need to use a cors proxy";
+		console.log('Alle Daten:', data);
 	});
 } else {
 	loading.innerHTML = "Error: no iCal URL provided";
