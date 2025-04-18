@@ -576,7 +576,6 @@ if (ical) {
 			events = events.concat(_events);
 		});
 		renderCalendar(meta[0], events);
-		console.log('Alle Daten:', events);
 	});
 } else {
 	loading.innerHTML = "Error: no iCal URL provided";
