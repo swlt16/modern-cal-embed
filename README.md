@@ -11,5 +11,10 @@ https://gra0007.github.io/modern-cal-embed/
 You can test the embed's functionality using the following ics file url:
 `https://gra0007.github.io/modern-cal-embed/example.ics`
 
-! IMPORTANT
-Use `header('Access-Control-Allow-Origin: *');` on the PHP side!
+# IMPORTANT
+Use `header('Access-Control-Allow-Origin: *');` on the PHP side, if the data source is on another host!
+
+# MULTIPLE CALENDARS
+You can use multiple calendar links as data source, just separate the links with a pipe (`|`).
+They will be displayed as a combined calendar in the plugin.
+The meta data is used from the first calendar in the list.
