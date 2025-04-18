@@ -128,7 +128,7 @@ function eventDetails(event) {
 	eDetails.appendChild(whenLabel);
 	eDetails.appendChild(when);
 
-	if (event.location != null && event.location != '') {
+	if (event.location != null && event.location != '' && event.location != null) {
 		eDetails.appendChild(document.createElement('br'));
 		let whereLabel = document.createElement('strong');
 		whereLabel.appendChild(document.createTextNode('Ort: '));
