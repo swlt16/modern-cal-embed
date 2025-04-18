@@ -549,12 +549,11 @@ function parseCalendar(data) {
 			}
 		}
 	}
-	renderCalendar(meta, events);
+	return [meta, events];
 }
 
 if (ical) {
 	icals = ical.split("|");
-
 
 	async function fetchAllLinks(urls) {
 		try {
@@ -569,10 +568,15 @@ if (ical) {
 	}
 
 	fetchAllLinks(icals).then(data => {
+		meta = [];
+		events = [];
 		data.forEach(cal => {
-			parseCalendar(cal);
+			[_meta, _events] = parseCalendar(cal);
+			meta.push(_meta);
+			events = events.concat(_events);
 		});
-		console.log('Alle Daten:', data);
+		renderCalendar(meta[0], events);
+		console.log('Alle Daten:', events);
 	});
 } else {
 	loading.innerHTML = "Error: no iCal URL provided";
